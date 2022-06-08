@@ -1,7 +1,8 @@
 grammar Gramatica;
 
+options { caseInsensitive = true; }
 INT     : [0-9]+ ;
-IDEN    : [_a-zA-Z][a-zA-Z0-9_]* ;
+IDEN    : [a-zA-Z0-9_]+ ;
 STRING  : '"' (~["\r\n] | '""')* '"' ;
 WS      : [ \t\r\n]+ -> skip ;
 
@@ -13,6 +14,10 @@ linstrucciones : instrucciones linstrucciones
 
 instrucciones : block #blck
         | declaration #decl
+        | print #pr
+        ;
+
+print : 'imprimir' '(' expr ')' ';'
         ;
 
 block : '{' linstrucciones '}' ;
@@ -28,4 +33,5 @@ expr : left=expr op=('*'|'/') right=expr #opExpr
    | '(' expr ')'                      #parenExpr
    | atom=INT                          #atomExpr
    | str=STRING                        #strExpr
+   | id=IDEN                           #idExpr
    ;

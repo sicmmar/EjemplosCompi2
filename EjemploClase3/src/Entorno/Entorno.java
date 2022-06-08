@@ -21,4 +21,14 @@ public class Entorno {
         }
         else TablaSimbolo.put(nombre.toUpperCase(), nuevo);
     }
+
+    public Simbolo Buscar(String nombre)
+    {
+        for (Entorno ent = this; ent != null; ent = ent.padre)
+        {
+            if (ent.TablaSimbolo.containsKey(nombre.toUpperCase()))
+                return ent.TablaSimbolo.get(nombre.toUpperCase());
+        }
+        return null;
+    }
 }

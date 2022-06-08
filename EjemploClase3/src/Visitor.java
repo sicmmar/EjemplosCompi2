@@ -1,11 +1,28 @@
+import Entorno.*;
 import Gramatica.*;
+
+import java.util.Stack;
 
 public class Visitor extends GramaticaBaseVisitor<Object> {
 
+    Stack<Entorno> pilaEnt = new Stack<Entorno>();
+
+    public Visitor(Entorno ent) {
+        this.pilaEnt.push(ent);
+    }
+
     public Object visitStart(GramaticaParser.StartContext ctx)
     {
-        System.out.println(visit(ctx.linstrucciones()));
+        //System.out.println(visit(ctx.linstrucciones()));
         return visit(ctx.linstrucciones());
+    }
+
+    public Object visitBlck(GramaticaParser.BlckContext ctx)
+    {
+        pilaEnt.push(new Entorno(pilaEnt.peek()));
+        visit(ctx.block());
+        pilaEnt.pop();
+        return true;
     }
     public Object visitBlock(GramaticaParser.BlockContext ctx)
     {
@@ -17,10 +34,16 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         return visit(ctx.declaration());
     }
 
-    public String visitDeclaration(GramaticaParser.DeclarationContext ctx)
+    public Object visitDeclaration(GramaticaParser.DeclarationContext ctx)
     {
-        return "Variable de tipo " + visit(ctx.type()).toString() + " con nombre "
-                + ctx.IDEN().getText() + " tiene valor de " + visit(ctx.expr()).toString();
+        Entorno ent = pilaEnt.peek();
+        if(!ent.TablaSimbolo.containsKey(ctx.IDEN().getText().toUpperCase()))
+        {
+            Simbolo nuevo = new Simbolo(ctx.type().getText(), visit(ctx.expr()));
+            ent.nuevoSimbolo(ctx.IDEN().getText(), nuevo);
+            return true;
+        }
+        else throw new RuntimeException("La variable ya existe en el entorno actual.");
     }
 
     public String visitType(GramaticaParser.TypeContext ctx)
@@ -51,5 +74,19 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
     public String visitStrExpr(GramaticaParser.StrExprContext ctx)
     {
         return String.valueOf(ctx.str.getText());
+    }
+
+    public Object visitIdExpr(GramaticaParser.IdExprContext ctx)
+    {
+        Entorno ent = pilaEnt.peek();
+        Simbolo id = ent.Buscar(ctx.IDEN().getText());
+        if (id == null) throw new RuntimeException("La variable " + ctx.IDEN().getText() + " no existe.");
+        else return id.valor;
+    }
+
+    public Object visitPrint(GramaticaParser.PrintContext ctx)
+    {
+        System.out.println(visit(ctx.expr()));
+        return true;
     }
 }
