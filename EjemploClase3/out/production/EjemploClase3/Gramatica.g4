@@ -15,7 +15,16 @@ linstrucciones : instrucciones linstrucciones
 instrucciones : block #blck
         | declaration #decl
         | print #pr
+        | subroutine #subr
         ;
+
+implicit : 'implicit' 'none' ;
+
+subroutine : 'subroutine' id1=IDEN '(' lexpr ')' implicit linstrucciones 'end' 'subroutine' id2=IDEN
+;
+
+lexpr : expr ( ',' expr )*
+;
 
 print : 'imprimir' '(' expr ')' ';'
         ;
@@ -34,4 +43,5 @@ expr : left=expr op=('*'|'/') right=expr #opExpr
    | atom=INT                          #atomExpr
    | str=STRING                        #strExpr
    | id=IDEN                           #idExpr
+   | IDEN '(' lexpr ')'                #funcExpr
    ;

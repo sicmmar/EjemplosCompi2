@@ -1,6 +1,9 @@
 import Entorno.*;
+import Entorno.Simbolo.*;
 import Gramatica.*;
+import Tipos.Subrutina;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class Visitor extends GramaticaBaseVisitor<Object> {
@@ -11,6 +14,24 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         this.pilaEnt.push(ent);
     }
 
+    public Object visitSubroutine(GramaticaParser.SubroutineContext ctx)
+    {
+        if (ctx.id1.getText().equals(ctx.id2.getText()))
+        {
+            if(!pilaEnt.peek().TablaSimbolo.containsKey((ctx.id1.getText() + TipoSimbolo.Subrutina.name()).toUpperCase()))
+            {
+                ArrayList<Simbolo> parametros = new ArrayList<Simbolo>();
+                for(int i = 0; i < ctx.lexpr().getChildCount(); i++)
+                    parametros.add(new Simbolo(visit(ctx.lexpr().expr(i)).toString(), "", null, TipoSimbolo.Parametros));
+
+                Subrutina subr = new Subrutina(ctx.id1.getText(), parametros, ctx.linstrucciones());
+                pilaEnt.peek().TablaSimbolo.put(ctx.id1.getText() + TipoSimbolo.Subrutina.name(),
+                        new Simbolo(ctx.id1.getText(), "Subrutina", subr, TipoSimbolo.Subrutina-));
+                return true;
+            }
+        }
+        throw new RuntimeException("Los identificadores de la subrutina no coinciden");
+    }
     public Object visitStart(GramaticaParser.StartContext ctx)
     {
         //System.out.println(visit(ctx.linstrucciones()));
@@ -37,10 +58,10 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
     public Object visitDeclaration(GramaticaParser.DeclarationContext ctx)
     {
         Entorno ent = pilaEnt.peek();
-        if(!ent.TablaSimbolo.containsKey(ctx.IDEN().getText().toUpperCase()))
+        if(!ent.TablaSimbolo.containsKey((ctx.IDEN().getText() + TipoSimbolo.Variable.name()).toUpperCase()))
         {
-            Simbolo nuevo = new Simbolo(ctx.type().getText(), visit(ctx.expr()));
-            ent.nuevoSimbolo(ctx.IDEN().getText(), nuevo);
+            Simbolo nuevo = new Simbolo(ctx.IDEN().getText(), ctx.type().getText(), visit(ctx.expr()), TipoSimbolo.Variable );
+            ent.nuevoSimbolo(ctx.IDEN().getText() + TipoSimbolo.Variable.name(), nuevo);
             return true;
         }
         else throw new RuntimeException("La variable ya existe en el entorno actual.");
@@ -79,7 +100,7 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
     public Object visitIdExpr(GramaticaParser.IdExprContext ctx)
     {
         Entorno ent = pilaEnt.peek();
-        Simbolo id = ent.Buscar(ctx.IDEN().getText());
+        Simbolo id = ent.Buscar(ctx.IDEN().getText() + TipoSimbolo.Variable.name());
         if (id == null) throw new RuntimeException("La variable " + ctx.IDEN().getText() + " no existe.");
         else return id.valor;
     }

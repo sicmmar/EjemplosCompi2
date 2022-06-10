@@ -44,6 +44,31 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPr(GramaticaParser.PrContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code subr}
+	 * labeled alternative in {@link GramaticaParser#instrucciones}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubr(GramaticaParser.SubrContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#implicit}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImplicit(GramaticaParser.ImplicitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#subroutine}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubroutine(GramaticaParser.SubroutineContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#lexpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLexpr(GramaticaParser.LexprContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GramaticaParser#print}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
