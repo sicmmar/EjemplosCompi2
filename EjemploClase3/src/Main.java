@@ -26,6 +26,7 @@ public class Main {
         GramaticaLexer lexico = new GramaticaLexer(cs);
         CommonTokenStream tokens = new CommonTokenStream(lexico);
         GramaticaParser sintactico = new GramaticaParser(tokens);
+        sintactico.removeErrorListeners();
         GramaticaParser.StartContext startCtx = sintactico.start();
 
         Visitor visitor = new Visitor(new Entorno(null));

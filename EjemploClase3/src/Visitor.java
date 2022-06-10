@@ -26,7 +26,7 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
 
                 Subrutina subr = new Subrutina(ctx.id1.getText(), parametros, ctx.linstrucciones());
                 pilaEnt.peek().TablaSimbolo.put(ctx.id1.getText() + TipoSimbolo.Subrutina.name(),
-                        new Simbolo(ctx.id1.getText(), "Subrutina", subr, TipoSimbolo.Subrutina-));
+                        new Simbolo(ctx.id1.getText(), "Subrutina", subr, TipoSimbolo.Subrutina));
                 return true;
             }
         }
@@ -73,28 +73,36 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
     }
 
     public Object visitOpExpr(GramaticaParser.OpExprContext ctx){
-        int izq = (int)visit(ctx.left);
-        int der = (int)visit(ctx.right);
+        Simbolo izq = (Simbolo)visit(ctx.left);
+        Simbolo der = (Simbolo) visit(ctx.right);
         String operacion = ctx.op.getText();
 
         switch (operacion.charAt(0))
         {
-            case '*' : return izq * der;
-            case '/' : return izq / der;
-            case '+' : return izq + der;
-            case '-' : return izq - der;
+            case '*' :
+                if (izq.tipo.equals("int") && der.tipo.equals("real"))
+                    return new Simbolo("", "real", (double)izq.valor * (double)der.valor, TipoSimbolo.Nativo);
+            case '/' :
+                if (izq.tipo.equals("int") && der.tipo.equals("real"))
+                    return new Simbolo("", "real", (double)izq.valor / (double)der.valor, TipoSimbolo.Nativo);
+            case '+' :
+                if (izq.tipo.equals("int") && der.tipo.equals("real"))
+                    return new Simbolo("", "real", (double)izq.valor + (double)der.valor, TipoSimbolo.Nativo);
+            case '-' :
+                if (izq.tipo.equals("int") && der.tipo.equals("real"))
+                    return new Simbolo("", "real", (double)izq.valor - (double)der.valor, TipoSimbolo.Nativo);
             default: throw new IllegalArgumentException("Operación no válida");
         }
     }
 
-    public Integer visitAtomExpr(GramaticaParser.AtomExprContext ctx)
+    public Simbolo visitAtomExpr(GramaticaParser.AtomExprContext ctx)
     {
-        return Integer.valueOf(ctx.getText());
+        return new Simbolo("", "int", Integer.valueOf(ctx.getText()), TipoSimbolo.Nativo);
     }
 
-    public String visitStrExpr(GramaticaParser.StrExprContext ctx)
+    public Simbolo visitStrExpr(GramaticaParser.StrExprContext ctx)
     {
-        return String.valueOf(ctx.str.getText());
+        return new Simbolo("", "string", String.valueOf(ctx.str.getText()), TipoSimbolo.Nativo);
     }
 
     public Object visitIdExpr(GramaticaParser.IdExprContext ctx)

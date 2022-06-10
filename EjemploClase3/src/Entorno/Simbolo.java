@@ -11,7 +11,8 @@ public class Simbolo {
         Variable,
         Funcion,
         Subrutina,
-        Parametros
+        Parametros,
+        Nativo
     }
 
     public Simbolo(String id, String tipo, Object valor, TipoSimbolo tipoS) {
