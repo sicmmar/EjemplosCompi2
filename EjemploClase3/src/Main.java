@@ -6,20 +6,35 @@ import static org.antlr.v4.runtime.CharStreams.fromString;
 
 public class Main {
     public static void main(String[] args) {
-        String input = "int var1 = 54+17*78;" +
-                "imPRimiR(54+17);" +
-                "sTRIng var3 = \"hola mundo >:D\";" +
-                "imprimir(var1);" +
-                "{" +
-                    "iNt var1 = 31;" +
-                    "imprimir(vAr1);" +
-                    "{" +
-                        "INT VAR1 = 47+123*78/14;" +
-                        "imprimir(var1);" +
-                        "imprimir(var3);" +
-                    "}" +
-                    "imprimir(var1);" +
-                "}";
+        String input = "" +
+                "subroutine rutina1(param1, param2)\n" +
+                    "implicit none\n" +
+                    "int, intent(in) :: param1\n" +
+                    "int, intent(in) :: param2\n" +
+                    "int vvvv1 = 123+78+1111111\n" +
+                    "imprimir(vvvv1)\n" +
+                    "imprimir(param1)\n" +
+                    "imprimir(param2)\n" +
+                "end subroutine rutina1\n" +
+
+                "int var1 = 54+14*78\n" +
+                "imPrImir(54+87)\n" +
+                "sTRINg var3 = \"hola mundo >:D\"\n" +
+                "imprimir(var1)\n" +
+
+                "{\n" +
+                    "iNt var1 = 31\n" +
+                    "imprimir(var1)\n" +
+                    "{\n" +
+                        "imprimir(\"LO SIGUIENTE ES LA SUBRUTINA:\")\n" +
+                        "call rutina1(var1+3, var3)\n" +
+                        "IMPRIMIR(\"-------------------------------------------\")\n" +
+                        "INT vAr1 = 47+123*78/14\n" +
+                        "imprimir(var1)\n" +
+                        "imprimir(var3)\n" +
+                    "}\n" +
+                    "imprimir(vaR1)\n" +
+                "}\n";
 
         CharStream cs = fromString(input);
 
