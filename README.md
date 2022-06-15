@@ -9,3 +9,4 @@ Ejemplos para laboratorio del curso de Compiladores 2, Vacaciones Junio 2022.
 |[Clase 6](EjemploClase3/)|08 Junio 2022|Gramática para manejo de subrutina.|
 |[Clase 7](EjemploClase3/)|09 Junio 2022|Manejo de tipos para operaciones en expresiones.|
 |[Clase 8](EjemploClase3/)|10 Junio 2022|Almacenamiento y ejecución de Subrutinas.|
+|[Clase 10](EjemploClase3/)|14 Junio 2022|Manejo y recuperación de errores.|

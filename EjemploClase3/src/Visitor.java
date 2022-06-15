@@ -9,6 +9,7 @@ import java.util.Stack;
 public class Visitor extends GramaticaBaseVisitor<Object> {
 
     Stack<Entorno> pilaEnt = new Stack<Entorno>();
+    ArrayList<ErrorCompilador> errores = new ArrayList<ErrorCompilador>();
 
     public Visitor(Entorno ent) {
         this.pilaEnt.push(ent);
@@ -57,14 +58,18 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
                 return true;
             }
         }
-        throw new RuntimeException("Los identificadores de la subrutina no coinciden");
+        errores.add(new ErrorCompilador(ctx.id1.getLine(), ctx.id1.getCharPositionInLine(),
+                "Los identificadores de la subrutina no coinciden", ErrorCompilador.ErrorTipo.Semantico));
+        return true;
     }
 
     public Object visitCall(GramaticaParser.CallContext ctx)
     {
         Entorno ent = pilaEnt.peek();
         Simbolo simbRutina = ent.Buscar(ctx.IDEN().getText() + TipoSimbolo.Subrutina.name());
-        if (simbRutina == null) throw new RuntimeException("La subrutina " + ctx.IDEN().getText() + " no existe.");
+        if (simbRutina == null) errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(),
+                ctx.IDEN().getSymbol().getCharPositionInLine(), "La subrutina " + ctx.IDEN().getText() + " no existe.",
+                ErrorCompilador.ErrorTipo.Semantico));
         else
         {
             Entorno entSubr = new Entorno(ent);
@@ -73,8 +78,9 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
             {
                 for (int i = 0; i < ctx.lexpr().expr().size(); i++)
                 {
-                    subr.lparametros.get(i).valor = visit(ctx.lexpr().expr().get(i));
-                    subr.lparametros.get(i).tipo = subr.ldeclaracionParam.declParameters(i).type().getText();
+                    Simbolo v = (Simbolo)visit(ctx.lexpr().expr().get(i));
+                    subr.lparametros.get(i).valor = v.valor;
+                    subr.lparametros.get(i).tipo = subr.ldeclaracionParam.declParameters(i).type().getText().toUpperCase();
                     entSubr.nuevoSimbolo(subr.lparametros.get(i).identificador + TipoSimbolo.Variable.name(),
                             subr.lparametros.get(i));
                 }
@@ -82,7 +88,8 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
                 pilaEnt.push(entSubr);
                 visitLinstrucciones((GramaticaParser.LinstruccionesContext)subr.linstrucciones);
                 pilaEnt.pop();
-            } else throw  new RuntimeException("La cantidad de parámetros no coincide.");
+            } else errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
+                    "La cantidad de parámetros no coincide.", ErrorCompilador.ErrorTipo.Semantico));
         }
         return true;
     }
@@ -96,7 +103,8 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
 
     public Object visitPrint(GramaticaParser.PrintContext ctx)
     {
-        System.out.println(visit(ctx.expr()));
+        Simbolo s = (Simbolo)visit(ctx.expr());
+        System.out.println(s.valor);
         return true;
     }
 
@@ -113,11 +121,15 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         Entorno ent = pilaEnt.peek();
         if(!ent.TablaSimbolo.containsKey((ctx.IDEN().getText() + TipoSimbolo.Variable.name()).toUpperCase()))
         {
-            Simbolo nuevo = new Simbolo(ctx.IDEN().getText(), ctx.type().getText(), visit(ctx.expr()), TipoSimbolo.Variable );
+            Simbolo nuevo = (Simbolo)visit(ctx.expr());
+            nuevo.identificador = ctx.IDEN().getText();
+            nuevo.tipo = ctx.type().getText();
             ent.nuevoSimbolo(ctx.IDEN().getText() + TipoSimbolo.Variable.name(), nuevo);
             return true;
         }
-        else throw new RuntimeException("La variable ya existe en el entorno actual.");
+        else errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
+                "La variable ya existe en el entorno actual.", ErrorCompilador.ErrorTipo.Semantico));
+        return false;
     }
 
     public String visitType(GramaticaParser.TypeContext ctx)
@@ -126,37 +138,41 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
     }
 
     public Object visitOpExpr(GramaticaParser.OpExprContext ctx){
-        int izq = (int)visit(ctx.left);
-        int der = (int)visit(ctx.right);
+        Simbolo izq = (Simbolo)visit(ctx.left);
+        Simbolo der = (Simbolo)visit(ctx.right);
         String operacion = ctx.op.getText();
 
         switch (operacion.charAt(0))
         {
-            case '*' : return izq * der;
-            case '/' : return izq / der;
-            case '+' : return izq + der;
-            case '-' : return izq - der;
+            case '*' : return new Simbolo("", "INT", (int)izq.valor * (int)der.valor, TipoSimbolo.Variable);
+            case '/' : return new Simbolo("", "INT", (int)izq.valor / (int)der.valor, TipoSimbolo.Variable);
+            case '+' : return new Simbolo("", "INT", (int)izq.valor + (int)der.valor, TipoSimbolo.Variable);
+            case '-' : return new Simbolo("", "INT", (int)izq.valor - (int)der.valor, TipoSimbolo.Variable);
             default: throw new IllegalArgumentException("Operación no válida");
         }
 
     }
 
-    public Integer visitAtomExpr(GramaticaParser.AtomExprContext ctx)
+
+    public Simbolo visitAtomExpr(GramaticaParser.AtomExprContext ctx)
     {
-        return Integer.valueOf(ctx.getText());
+        return new Simbolo("", "INT", Integer.valueOf(ctx.getText()), TipoSimbolo.Variable);
     }
 
-    public String visitStrExpr(GramaticaParser.StrExprContext ctx)
+    public Simbolo visitStrExpr(GramaticaParser.StrExprContext ctx)
     {
-        return String.valueOf(ctx.getText());
+        return new Simbolo("", "STRING", String.valueOf(ctx.getText()), TipoSimbolo.Variable);
     }
 
-    public Object visitIdExpr(GramaticaParser.IdExprContext ctx)
+    public Simbolo visitIdExpr(GramaticaParser.IdExprContext ctx)
     {
         Entorno ent = pilaEnt.peek();
         Simbolo id = ent.Buscar(ctx.IDEN().getText() + TipoSimbolo.Variable.name());
-        if (id == null) throw new RuntimeException("La variable " + ctx.IDEN().getText() + " no existe.");
-        else return id.valor;
+        if (id != null) return id;
+
+        errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
+                "La variable " + ctx.IDEN().getText() + " no existe.", ErrorCompilador.ErrorTipo.Semantico));
+        return null;
     }
 
 
