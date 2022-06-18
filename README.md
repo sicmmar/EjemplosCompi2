@@ -11,3 +11,4 @@ Ejemplos para laboratorio del curso de Compiladores 2, Vacaciones Junio 2022.
 |[Clase 8](EjemploClase3/)|10 Junio 2022|Almacenamiento y ejecución de Subrutinas.|
 |[Clase 10](EjemploClase3/)|14 Junio 2022|Manejo y recuperación de errores.|
 |[Clase 11](helloC3D.c)|15 Junio 2022|Archivo de "hola mundo" en Código de tres direcciones.|
+|[Clase 13](EjemploClase3/)|17 Junio 2022|Manejo de puntero en STACK para almacenar variables en código de tres direcciones.|
