@@ -13,7 +13,8 @@ public class Simbolo {
         Funcion,
         Subrutina,
         Parametros,
-        Nativo
+        Nativo,
+        C3D
     }
 
     public Simbolo(String id, String tipo, Object valor, TipoSimbolo tipoS, int posicion) {
@@ -22,5 +23,14 @@ public class Simbolo {
         this.valor = valor;
         this.tipoSimbolo = tipoS;
         this.posicion = posicion;
+    }
+
+    public  Simbolo(TipoSimbolo tipoS, Object valor, String tipo)
+    {
+        this.identificador = "";
+        this.tipo = tipo;
+        this.valor = valor;
+        this.tipoSimbolo = tipoS;
+        this.posicion = -1;
     }
 }

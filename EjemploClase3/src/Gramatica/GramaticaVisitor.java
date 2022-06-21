@@ -111,6 +111,13 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAtomExpr(GramaticaParser.AtomExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code boolExpr}
+	 * labeled alternative in {@link GramaticaParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolExpr(GramaticaParser.BoolExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code parenExpr}
 	 * labeled alternative in {@link GramaticaParser#expr}.
 	 * @param ctx the parse tree

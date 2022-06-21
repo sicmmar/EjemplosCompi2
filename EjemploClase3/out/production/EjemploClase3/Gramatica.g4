@@ -4,6 +4,7 @@ options { caseInsensitive = true; }
 
 INTR    : 'int';
 STRINGR : 'string' ;
+BOOLR   : 'bool';
 IMPRIMIR : 'imprimir' ;
 SUBR    : 'subroutine' ;
 ENDR    : 'end' ;
@@ -48,6 +49,7 @@ declaration : type IDEN '=' expr '\n' ;
 
 type : INTR
     | STRINGR
+    | BOOLR
     ;
 
 expr : left=expr op=('*'|'/') right=expr #opExpr
@@ -56,5 +58,7 @@ expr : left=expr op=('*'|'/') right=expr #opExpr
    | atom=INT                          #atomExpr
    | str=STRING                        #strExpr
    | id=IDEN                           #idExpr
+   | '.' 'true' '.'                    #boolExpr
+   | '.' 'false' '.'                   #boolExpr
    | IDEN '(' lexpr ')'                #funcExpr
    ;

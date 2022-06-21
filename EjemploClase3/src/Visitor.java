@@ -124,14 +124,54 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         Simbolo s = (Simbolo)visit(ctx.expr());
         if (!is3d)
         {
+            if (s.tipo.equals("BOOL")) s.valor = (boolean)s.valor ? 'T' : 'F';
             System.out.println(s.valor);
+        }
+        else
+        {
+            Entorno ent = pilaEnt.peek();
+            /*
+            * 1. IMPRIMIR UNA VARIABLE DE TIPO STRING -> IDSTR
+            * 2. IMPRIMIR UNA VARIABLE DE TIPO NUMÉRICA -> IDFLOAT
+            * 3. IMPRIMIR UN TOKEN DE TIPO NUMÉRICO -> FLOAT
+            * 4. IMPRIMIR UN TOKEN DE TIPO STRING -> STR
+            * */
+
+            Simbolo sim = null;
+            if (s.tipo.toUpperCase().equals("IDSTR") || s.tipo.toUpperCase().equals("IDFLOAT"))
+                sim = ent.Buscar(s.identificador + TipoSimbolo.Variable.name());
+
+            switch (s.tipo)
+            {
+                case "IDSTR":
+                    if (sim != null)
+                    {
+                        c3d.codigo3d.add(c3d.generateTemporal() + " = " + ent.getPrevSizes() + " + " + sim.posicion + ";");
+                        c3d.codigo3d.add("P = " + c3d.lastTemporal() + ";");
+                        c3d.codigo3d.add("imprimir_variable();");
+                    }
+                    break;
+                case "IDFLOAT":
+                    if (sim != null)
+                    {
+                        c3d.codigo3d.add(c3d.generateTemporal() + " = " + ent.getPrevSizes() + " + " + sim.posicion + ";");
+                        c3d.codigo3d.add("P = " + c3d.lastTemporal() + ";");
+                        c3d.codigo3d.add("imprimir_var_int();");
+                    }
+                    break;
+                case "FLOAT":
+                    c3d.codigo3d.add("printf(\"%f\\n\", " + s.valor + ");");
+                    break;
+                case "STR":
+                    break;
+            }
         }
         return true;
     }
 
     public Object visitBlock(GramaticaParser.BlockContext ctx)
     {
-        Entorno blck;
+        /*Entorno blck;
         if (!is3d)
         {
             blck = new Entorno(pilaEnt.peek());
@@ -139,9 +179,13 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         }
         else blck = pilaEnt.peek().siguiente;
 
-        pilaEnt.push(blck);
+        pilaEnt.push(blck);*/
+
+        if (is3d) c3d.codigo3d.add("int main()\n{\n\n");
         visitLinstrucciones(ctx.linstrucciones());
-        pilaEnt.pop();
+        //pilaEnt.pop();
+
+        if (is3d) c3d.codigo3d.add("\nreturn 0;\n}");
         return true;
     }
 
@@ -177,10 +221,10 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
                 // t4 = 12 + 2;
                 // P = t4;
                 // STACK[P] = t3; -- 5, 0, 1
-
+                Simbolo valorLocal = (Simbolo) visit(ctx.expr());
                 c3d.codigo3d.add(c3d.generateTemporal() + " = " + ent.getPrevSizes() + " + " + sim.posicion + ";");
                 c3d.codigo3d.add("P = " + c3d.lastTemporal() + ";");
-                c3d.codigo3d.add("STACK[(int)P] = " + sim.valor.toString() + ";");
+                c3d.codigo3d.add("STACK[(int)P] = " + valorLocal.valor + ";");
 
             }
         }
@@ -197,12 +241,23 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         Simbolo der = (Simbolo)visit(ctx.right);
         String operacion = ctx.op.getText();
 
-        switch (operacion.charAt(0))
+        if (is3d)
         {
-            case '*' : return new Simbolo("", "INT", (int)izq.valor * (int)der.valor, TipoSimbolo.Variable, -1);
-            case '/' : return new Simbolo("", "INT", (int)izq.valor / (int)der.valor, TipoSimbolo.Variable, -1);
-            case '+' : return new Simbolo("", "INT", (int)izq.valor + (int)der.valor, TipoSimbolo.Variable, -1);
-            case '-' : return new Simbolo("", "INT", (int)izq.valor - (int)der.valor, TipoSimbolo.Variable, -1);
+            Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(), "FLOAT");
+            c3d.codigo3d.add(sim3d.valor + " = " + izq.valor + operacion + der.valor + ";");
+            return  sim3d;
+        }
+
+        switch (operacion)
+        {
+            case "*" : return new Simbolo("", "INT", (int)izq.valor * (int)der.valor, TipoSimbolo.Variable, -1);
+            case "/" : return new Simbolo("", "INT", (int)izq.valor / (int)der.valor, TipoSimbolo.Variable, -1);
+            case "+" : return new Simbolo("", "INT", (int)izq.valor + (int)der.valor, TipoSimbolo.Variable, -1);
+            case "-" : return new Simbolo("", "INT", (int)izq.valor - (int)der.valor, TipoSimbolo.Variable, -1);
+            case ".OR." :
+                return new Simbolo("", "BOOL", (boolean)izq.valor || (boolean)der.valor, TipoSimbolo.Variable, -1);
+            case ".AND." :
+                return new Simbolo("", "BOOL", (boolean)izq.valor && (boolean)der.valor, TipoSimbolo.Variable, -1);
             default: throw new IllegalArgumentException("Operación no válida");
         }
 
@@ -213,25 +268,62 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         return (Simbolo) visit(ctx.expr());
     }
 
+    public Simbolo visitBoolExpr(GramaticaParser.BoolExprContext ctx)
+    {
+        if (!is3d) return new Simbolo("", "BOOL", Boolean.valueOf(ctx.getText()), TipoSimbolo.Variable, -1);
+        Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(), "FLOAT");
+        c3d.codigo3d.add(sim3d.valor + " = " + (Boolean.valueOf(ctx.getText()) ? "1" : "0") + ";");
+        return sim3d;
+    }
     public Simbolo visitAtomExpr(GramaticaParser.AtomExprContext ctx)
     {
-        return new Simbolo("", "INT", Integer.valueOf(ctx.getText()), TipoSimbolo.Variable, -1);
+        if (!is3d) return new Simbolo("", "INT", Integer.valueOf(ctx.getText()), TipoSimbolo.Variable, -1);
+        Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(), "FLOAT");
+        c3d.codigo3d.add(sim3d.valor + " = " + ctx.getText() + ";");
+        return sim3d;
     }
 
     public Simbolo visitStrExpr(GramaticaParser.StrExprContext ctx)
     {
-        return new Simbolo("", "STRING", String.valueOf(ctx.getText()), TipoSimbolo.Variable, -1);
+        if (!is3d) return new Simbolo("", "STRING", String.valueOf(ctx.getText()), TipoSimbolo.Variable, -1);
+        Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(), "STR");
+        c3d.codigo3d.add(sim3d.valor + " = H;");
+        for (char i : String.valueOf(ctx.getText()).toCharArray())
+        {
+            c3d.codigo3d.add("HEAP[(int)H] = " + (int)i + ";");
+            c3d.codigo3d.add("H = H + 1;");
+        }
+        c3d.codigo3d.add("HEAP[(int)H] = -1;");
+        c3d.codigo3d.add("H = H + 1;");
+        return sim3d;
     }
 
     public Simbolo visitIdExpr(GramaticaParser.IdExprContext ctx)
     {
         Entorno ent = pilaEnt.peek();
         Simbolo id = ent.Buscar(ctx.IDEN().getText() + TipoSimbolo.Variable.name());
-        if (id != null) return id;
+        if (id == null && !is3d) {
+            errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
+                    "La variable " + ctx.IDEN().getText() + " no existe.", ErrorCompilador.ErrorTipo.Semantico));
+            return null;
+        }
+        else
+        {
+            if (!is3d) return  id;
+            Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(),
+                    id.tipo.toUpperCase().equals("STRING") ? "IDSTR" : "IDFLOAT");
+            sim3d.identificador = ctx.IDEN().getText();
 
-        errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
-                "La variable " + ctx.IDEN().getText() + " no existe.", ErrorCompilador.ErrorTipo.Semantico));
-        return null;
+            /*
+            * t0 = 12 + 4;
+            * P = t0;
+            * t1 = STACK[(int)P];
+            * */
+            c3d.codigo3d.add(c3d.generateTemporal() + "=" + ent.getPrevSizes() + " + " + id.posicion + ";");
+            c3d.codigo3d.add("P = " + c3d.lastTemporal() + ";");
+            c3d.codigo3d.add(sim3d.valor + "= STACK[(int)P];");
+            return sim3d;
+        }
     }
 
 

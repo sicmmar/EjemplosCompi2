@@ -25,8 +25,43 @@ public class CodigoTresD {
         return String.valueOf("t" + this.temporal);
     }
 
+    public String generateLabel()
+    {
+        this.label++;
+        return  "L" + this.label;
+    }
+    private String getPrintVars()
+    {
+        String tempStart = this.generateTemporal();
+        String labelStart = this.generateLabel();
+        return "void imprimir_variable()\n" +
+                "{\n" +
+                tempStart + " = STACK[(int)P];\n" +
+                labelStart + ":\n" +
+                this.generateTemporal() + " = HEAP[(int)" + tempStart + "];\n" +
+                "if (" + this.lastTemporal() + " != -1) goto L" + (this.label + 1) + ";\n" +
+                "goto L" + (this.label + 2) + ";\n" +
+                this.generateLabel() + ":\n" +
+                "printf(\"%c\", (char)" + this.lastTemporal() + ");\n" +
+                tempStart + "=" + tempStart + " + 1;\n" +
+                "goto " + labelStart + ";\n" +
+                this.generateLabel() + ":\n" +
+                "printf(\"%c\\n\", (char)32);\n" +
+                "return;\n" +
+                "}\n\n";
+    }
+
+    private String getPrintVarInt()
+    {
+        return "void imprimir_var_int()\n{\n" +
+                this.generateTemporal() + " = STACK[(int)P];\n" +
+                "printf(\"%f\\n\", " + this.lastTemporal() + ");" +
+                "return;\n}\n\n";
+    }
+
     public String getHeader()
     {
+        String prints = this.getPrintVars() + this.getPrintVarInt();
         // para obtener solo listado de temporales: t1, t2, t3, ... , tn;
         String temporales = "";
         for (int i = 0; i <= this.temporal; i++)
@@ -37,6 +72,7 @@ public class CodigoTresD {
                 "double HEAP[30101999];\n" +
                 "double P;\n" +
                 "double H;\n" +
-                "double " + temporales;
+                "double " + temporales +
+                "\n" + prints;
     }
 }
