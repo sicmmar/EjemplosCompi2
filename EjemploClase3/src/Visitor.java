@@ -74,6 +74,29 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
             errores.add(new ErrorCompilador(ctx.id1.getLine(), ctx.id1.getCharPositionInLine(),
                     "Los identificadores de la subrutina no coinciden", ErrorCompilador.ErrorTipo.Semantico));
         }
+        else
+        {
+            Simbolo sim = pilaEnt.peek().Buscar((ctx.id1.getText() + TipoSimbolo.Subrutina.name()).toUpperCase());
+            if (sim != null)
+            {
+                /*
+                SUBR
+                    IF
+                    DO
+                    IF
+                FUNC
+                SUBR
+                PROGRAM
+                    call SUBR
+                */
+                Subrutina subr = (Subrutina) sim.valor;
+                c3d.codigo3d.add("void " + subr.nombre.toLowerCase() + "()\n{");
+                pilaEnt.push(subr.ent);
+                visitLinstrucciones((GramaticaParser.LinstruccionesContext)subr.linstrucciones);
+                pilaEnt.pop();
+                c3d.codigo3d.add("return;\n}\n");
+            }
+        }
         return true;
     }
 
@@ -104,6 +127,7 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
                     entSubr.ultPosicion = subr.lparametros.size();
                     pilaEnt.push(entSubr);
                     visitLinstrucciones((GramaticaParser.LinstruccionesContext)subr.linstrucciones);
+                    subr.ent = pilaEnt.peek();
                     pilaEnt.pop();
                 } else errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
                         "La cantidad de parámetros no coincide.", ErrorCompilador.ErrorTipo.Semantico));
@@ -163,6 +187,8 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
                     c3d.codigo3d.add("printf(\"%f\\n\", " + s.valor + ");");
                     break;
                 case "STR":
+                    c3d.codigo3d.add("P = " + s.valor + ";");
+                    c3d.codigo3d.add("imprimir_string();");
                     break;
             }
         }

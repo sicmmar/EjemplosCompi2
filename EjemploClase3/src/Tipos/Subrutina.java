@@ -9,6 +9,7 @@ public class Subrutina {
     public String nombre;
     public ArrayList<Simbolo> lparametros;
     public Object linstrucciones;
+    public Entorno ent;
     public GramaticaParser.LdeclPContext ldeclaracionParam;
 
     public Subrutina(String nombre, ArrayList<Simbolo> lparametros, Object linstrucciones, GramaticaParser.LdeclPContext ldeclaracionParam) {

@@ -51,6 +51,27 @@ public class CodigoTresD {
                 "}\n\n";
     }
 
+    private String getPrintStr()
+    {
+        String tempStart = this.generateTemporal();
+        String labelStart = this.generateLabel();
+        return "void imprimir_string()\n" +
+                "{\n" +
+                tempStart + " = P;\n" +
+                labelStart + ":\n" +
+                this.generateTemporal() + " = HEAP[(int)" + tempStart + "];\n" +
+                "if (" + this.lastTemporal() + " != -1) goto L" + (this.label + 1) + ";\n" +
+                "goto L" + (this.label + 2) + ";\n" +
+                this.generateLabel() + ":\n" +
+                "printf(\"%c\", (char)" + this.lastTemporal() + ");\n" +
+                tempStart + "=" + tempStart + " + 1;\n" +
+                "goto " + labelStart + ";\n" +
+                this.generateLabel() + ":\n" +
+                "printf(\"%c\\n\", (char)32);\n" +
+                "return;\n" +
+                "}\n\n";
+    }
+
     private String getPrintVarInt()
     {
         return "void imprimir_var_int()\n{\n" +
@@ -61,7 +82,7 @@ public class CodigoTresD {
 
     public String getHeader()
     {
-        String prints = this.getPrintVars() + this.getPrintVarInt();
+        String prints = this.getPrintVars() + this.getPrintVarInt() + this.getPrintStr();
         // para obtener solo listado de temporales: t1, t2, t3, ... , tn;
         String temporales = "";
         for (int i = 0; i <= this.temporal; i++)
