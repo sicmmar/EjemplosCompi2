@@ -30,6 +30,20 @@ public class CodigoTresD {
         this.label++;
         return  "L" + this.label;
     }
+
+    public Simbolo getAnd(String izq, String der)
+    {
+        this.codigo3d.add("if (" + izq + " ) goto " + this.generateLabel() + ";\n" +
+                "goto " + this.generateLabel() + ";\n" +
+                "L" + (this.label - 1) + ": if (" + der + ") goto L" + (this.label + 1) + ";\n" +
+                "goto L" + (this.label + 2) + ";\n" +
+                this.generateLabel() + ": " + this.generateTemporal() + " = 1;\n" +
+                "goto L" + (this.label + 2) + ";\n" +
+                "L" + (this.label - 1) + ": " + this.generateLabel() + ": t" + this.temporal + "= 0;\n" +
+                this.generateLabel() + ":\n");
+        return  new Simbolo(Simbolo.TipoSimbolo.C3D, this.lastTemporal(), "FLOAT");
+    }
+
     private String getPrintVars()
     {
         String tempStart = this.generateTemporal();

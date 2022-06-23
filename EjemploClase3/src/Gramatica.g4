@@ -54,6 +54,7 @@ type : INTR
 
 expr : left=expr op=('*'|'/') right=expr #opExpr
    | left=expr op=('+'|'-') right=expr #opExpr
+   | left=expr op=('.and.'|'.or.') right=expr #opExpr
    | '(' expr ')'                      #parenExpr
    | atom=INT                          #atomExpr
    | str=STRING                        #strExpr

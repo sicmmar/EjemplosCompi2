@@ -3,42 +3,42 @@ double STACK[30101999];
 double HEAP[30101999];
 double P;
 double H;
-double t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40,t41,t42,t43,t44,t45,t46,t47,t48,t49,t50,t51,t52,t53,t54,t55,t56,t57,t58,t59,t60,t61,t62,t63,t64,t65,t66,t67,t68,t69,t70,t71,t72,t73,t74,t75,t76,t77,t78,t79,t80,t81,t82,t83,t84,t85,t86,t87,t88,t89,t90,t91,t92,t93;
+double t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40,t41,t42,t43,t44,t45,t46,t47,t48,t49,t50,t51,t52,t53,t54,t55,t56,t57,t58,t59,t60,t61,t62,t63,t64,t65,t66,t67,t68,t69,t70,t71,t72,t73,t74,t75,t76,t77,t78,t79,t80,t81,t82,t83,t84,t85,t86,t87,t88,t89,t90,t91,t92,t93,t94,t95,t96,t97,t98,t99,t100,t101,t102,t103,t104,t105,t106,t107,t108,t109,t110;
 
 void imprimir_variable()
 {
-t89 = STACK[(int)P];
-L0:
-t90 = HEAP[(int)t89];
-if (t90 != -1) goto L1;
-goto L2;
-L1:
-printf("%c", (char)t90);
-t89=t89 + 1;
-goto L0;
-L2:
+t106 = STACK[(int)P];
+L5:
+t107 = HEAP[(int)t106];
+if (t107 != -1) goto L6;
+goto L7;
+L6:
+printf("%c", (char)t107);
+t106=t106 + 1;
+goto L5;
+L7:
 printf("%c\n", (char)32);
 return;
 }
 
 void imprimir_var_int()
 {
-t91 = STACK[(int)P];
-printf("%f\n", t91);return;
+t108 = STACK[(int)P];
+printf("%f\n", t108);return;
 }
 
 void imprimir_string()
 {
-t92 = P;
-L3:
-t93 = HEAP[(int)t92];
-if (t93 != -1) goto L4;
-goto L5;
-L4:
-printf("%c", (char)t93);
-t92=t92 + 1;
-goto L3;
-L5:
+t109 = P;
+L8:
+t110 = HEAP[(int)t109];
+if (t110 != -1) goto L9;
+goto L10;
+L9:
+printf("%c", (char)t110);
+t109=t109 + 1;
+goto L8;
+L10:
 printf("%c\n", (char)32);
 return;
 }
@@ -359,11 +359,11 @@ t45 = t43*t44;
 t46 = 14;
 t47 = t45/t46;
 t48 = t42+t47;
-t49 = 0 + 2;
+t49 = 2 + 0;
 P = t49;
 STACK[(int)P] = t48;
-t50 = 0;
-t51 = 0 + 3;
+t50 = 1;
+t51 = 2 + 1;
 P = t51;
 STACK[(int)P] = t50;
 t52 = 54;
@@ -405,16 +405,24 @@ HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = -1;
 H = H + 1;
-t56 = 0 + 4;
+t56 = 2 + 2;
 P = t56;
 STACK[(int)P] = t55;
-t58=0 + 3;
+t58=2 + 1;
 P = t58;
 t57= STACK[(int)P];
-t59 = 0 + 3;
-P = t59;
-imprimir_var_int();
-t60 = H;
+t59 = 1;
+if (t57 ) goto L0;
+goto L1;
+L0: if (t59) goto L2;
+goto L3;
+L2: t60 = 1;
+goto L4;
+L1: L3: t60= 0;
+L4:
+
+printf("%f\n", t60);
+t61 = H;
 HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = 76;
@@ -479,9 +487,22 @@ HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = -1;
 H = H + 1;
-P = t60;
+P = t61;
 imprimir_string();
-t61 = H;
+t63=2 + 0;
+P = t63;
+t62= STACK[(int)P];
+t64 = 3;
+t65 = t62+t64;
+t66=7 + -1;
+P = t66;
+STACK[(int)P] = t65;
+t67 = 19999999;
+t68=7 + 0;
+P = t68;
+STACK[(int)P] = t67;
+rutina1();
+t69 = H;
 HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = 45;
@@ -574,27 +595,27 @@ HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = -1;
 H = H + 1;
-P = t61;
-imprimir_string();
-t63=0 + 2;
-P = t63;
-t62= STACK[(int)P];
-t64 = 0 + 2;
-P = t64;
-imprimir_var_int();
-t66=0 + 4;
-P = t66;
-t65= STACK[(int)P];
-t67 = 0 + 4;
-P = t67;
-imprimir_variable();
-t69=0 + 2;
 P = t69;
-t68= STACK[(int)P];
-t70 = 0 + 2;
-P = t70;
+imprimir_string();
+t71=2 + 0;
+P = t71;
+t70= STACK[(int)P];
+t72 = 2 + 0;
+P = t72;
 imprimir_var_int();
-t71 = H;
+t74=2 + 2;
+P = t74;
+t73= STACK[(int)P];
+t75 = 2 + 2;
+P = t75;
+imprimir_variable();
+t77=2 + 0;
+P = t77;
+t76= STACK[(int)P];
+t78 = 2 + 0;
+P = t78;
+imprimir_var_int();
+t79 = H;
 HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = 65;
@@ -625,27 +646,27 @@ HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = -1;
 H = H + 1;
-P = t71;
+P = t79;
 imprimir_string();
-t72 = 12;
-t73 = 0 + 5;
-P = t73;
-STACK[(int)P] = t72;
-t75=0 + 5;
-P = t75;
-t74= STACK[(int)P];
-t76 = 3;
-t77 = t74+t76;
-t78 = 4;
-t79 = 5;
-t80 = t78-t79;
-t81 = t77*t80;
-t82 = 2;
-t83 = t81/t82;
-t84 = 0 + 6;
-P = t84;
-STACK[(int)P] = t83;
-t85 = H;
+t80 = 12;
+t81 = 2 + 3;
+P = t81;
+STACK[(int)P] = t80;
+t83=2 + 3;
+P = t83;
+t82= STACK[(int)P];
+t84 = 3;
+t85 = t82+t84;
+t86 = 4;
+t87 = 5;
+t88 = t86-t87;
+t89 = t85*t88;
+t90 = 2;
+t91 = t89/t90;
+t92 = 2 + 4;
+P = t92;
+STACK[(int)P] = t91;
+t93 = H;
 HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = 76;
@@ -694,14 +715,33 @@ HEAP[(int)H] = 34;
 H = H + 1;
 HEAP[(int)H] = -1;
 H = H + 1;
-P = t85;
+P = t93;
 imprimir_string();
-t87=0 + 6;
-P = t87;
-t86= STACK[(int)P];
-t88 = 0 + 6;
-P = t88;
+t95=2 + 4;
+P = t95;
+t94= STACK[(int)P];
+t96 = 2 + 4;
+P = t96;
 imprimir_var_int();
+t98=2 + 4;
+P = t98;
+t97= STACK[(int)P];
+t99=7 + -1;
+P = t99;
+STACK[(int)P] = t97;
+t101=2 + 0;
+P = t101;
+t100= STACK[(int)P];
+t102=7 + 0;
+P = t102;
+STACK[(int)P] = t100;
+t104=2 + 1;
+P = t104;
+t103= STACK[(int)P];
+t105=7 + 1;
+P = t105;
+STACK[(int)P] = t103;
+rutina2();
 
 return 0;
 }

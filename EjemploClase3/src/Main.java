@@ -47,7 +47,7 @@ public class Main {
                     "bool flag = .true.\n" +
                     "imPrImir(54+87)\n" +
                     "sTRINg var3 = \"hola mundo >:D\"\n" +
-                    "imprimir(flag .and. .false.)\n" +
+                    "imprimir(flag .and. .true.)\n" +
                     "imprimir(\"LO SIGUIENTE ES LA SUBRUTINA:\")\n" +
                     "call rutina1(var1+3, 19999999)\n" +
                     "IMPRIMIR(\"-------------------------------------------\")\n" +

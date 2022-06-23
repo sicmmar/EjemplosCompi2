@@ -103,9 +103,9 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
     public Object visitCall(GramaticaParser.CallContext ctx)
     {
         Entorno ent = pilaEnt.peek();
+        Simbolo simbRutina = ent.Buscar(ctx.IDEN().getText() + TipoSimbolo.Subrutina.name());
         if (!is3d)
         {
-            Simbolo simbRutina = ent.Buscar(ctx.IDEN().getText() + TipoSimbolo.Subrutina.name());
             if (simbRutina == null) errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(),
                     ctx.IDEN().getSymbol().getCharPositionInLine(), "La subrutina " + ctx.IDEN().getText() + " no existe.",
                     ErrorCompilador.ErrorTipo.Semantico));
@@ -131,6 +131,27 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
                     pilaEnt.pop();
                 } else errores.add(new ErrorCompilador(ctx.IDEN().getSymbol().getLine(), ctx.IDEN().getSymbol().getCharPositionInLine(),
                         "La cantidad de parámetros no coincide.", ErrorCompilador.ErrorTipo.Semantico));
+            }
+        }
+        else
+        {
+            if (simbRutina != null)
+            {
+                Subrutina subr = (Subrutina) simbRutina.valor;
+                Entorno entCall = subr.ent;
+                if (subr.lparametros.size() == ctx.lexpr().expr().size() && subr.lparametros.size() == subr.ldeclaracionParam.getChildCount())
+                {
+                    for (int i = 0; i < ctx.lexpr().expr().size(); i++)
+                    {
+                        Simbolo v = (Simbolo) visit(ctx.lexpr().expr().get(i));
+                        // RECUPERAR LA DIRECCIÓN DE MEMORIA EN DONDE ESTÁ ALMACENADA CADA VARIABLE
+                        c3d.codigo3d.add(c3d.generateTemporal() + "=" + entCall.getPrevSizes() + " + " + subr.lparametros.get(i).posicion + ";");
+                        c3d.codigo3d.add("P = " + c3d.lastTemporal() + ";");
+                        c3d.codigo3d.add("STACK[(int)P] = " + v.valor + ";");
+                    }
+
+                    c3d.codigo3d.add(subr.nombre.toLowerCase() + "();");
+                }
             }
         }
         return true;
@@ -197,7 +218,7 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
 
     public Object visitBlock(GramaticaParser.BlockContext ctx)
     {
-        /*Entorno blck;
+        Entorno blck;
         if (!is3d)
         {
             blck = new Entorno(pilaEnt.peek());
@@ -205,7 +226,7 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
         }
         else blck = pilaEnt.peek().siguiente;
 
-        pilaEnt.push(blck);*/
+        pilaEnt.push(blck);
 
         if (is3d) c3d.codigo3d.add("int main()\n{\n\n");
         visitLinstrucciones(ctx.linstrucciones());
@@ -269,12 +290,15 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
 
         if (is3d)
         {
+            if (operacion.toUpperCase().equals(".AND."))
+                return c3d.getAnd(izq.valor.toString(), der.valor.toString());
+
             Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(), "FLOAT");
             c3d.codigo3d.add(sim3d.valor + " = " + izq.valor + operacion + der.valor + ";");
             return  sim3d;
         }
 
-        switch (operacion)
+        switch (operacion.toUpperCase())
         {
             case "*" : return new Simbolo("", "INT", (int)izq.valor * (int)der.valor, TipoSimbolo.Variable, -1);
             case "/" : return new Simbolo("", "INT", (int)izq.valor / (int)der.valor, TipoSimbolo.Variable, -1);
@@ -296,9 +320,9 @@ public class Visitor extends GramaticaBaseVisitor<Object> {
 
     public Simbolo visitBoolExpr(GramaticaParser.BoolExprContext ctx)
     {
-        if (!is3d) return new Simbolo("", "BOOL", Boolean.valueOf(ctx.getText()), TipoSimbolo.Variable, -1);
+        if (!is3d) return new Simbolo("", "BOOL", ctx.getText().toUpperCase().equals(".TRUE.") ? true : false, TipoSimbolo.Variable, -1);
         Simbolo sim3d = new Simbolo(TipoSimbolo.C3D, c3d.generateTemporal(), "FLOAT");
-        c3d.codigo3d.add(sim3d.valor + " = " + (Boolean.valueOf(ctx.getText()) ? "1" : "0") + ";");
+        c3d.codigo3d.add(sim3d.valor + " = " + (ctx.getText().toUpperCase().equals(".TRUE.") ? "1" : "0") + ";");
         return sim3d;
     }
     public Simbolo visitAtomExpr(GramaticaParser.AtomExprContext ctx)
